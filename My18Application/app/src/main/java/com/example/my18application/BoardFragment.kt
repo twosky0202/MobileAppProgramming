@@ -1,10 +1,12 @@
 package com.example.my18application
 
+import android.Manifest
 import android.content.Intent
 import android.content.pm.PackageManager
 import android.os.Build
 import android.os.Bundle
 import android.os.Environment
+import android.provider.Settings
 import androidx.fragment.app.Fragment
 import android.view.LayoutInflater
 import android.view.View
@@ -15,6 +17,7 @@ import androidx.appcompat.app.AppCompatActivity
 import androidx.core.content.ContextCompat
 import androidx.recyclerview.widget.LinearLayoutManager
 import com.example.my18application.databinding.FragmentBoardBinding
+import com.google.firebase.firestore.Query
 import com.google.firebase.firestore.ktx.toObject
 
 // TODO: Rename parameter arguments, choose names that match
@@ -48,6 +51,8 @@ class BoardFragment : Fragment() {
         // Inflate the layout for this fragment
         binding = FragmentBoardBinding.inflate(inflater, container, false)
 
+        myCheckPermission(requireActivity() as AppCompatActivity)
+
         binding.mainFab.setOnClickListener {
             if(MyApplication.checkAuth()){
                 val intent = Intent(requireContext(), AddActivity::class.java)
@@ -64,6 +69,7 @@ class BoardFragment : Fragment() {
         super.onStart()
         if(MyApplication.checkAuth()){
             MyApplication.db.collection("news")
+                .orderBy("date", Query.Direction.DESCENDING) // 내림차순
                 .get()
                 .addOnSuccessListener {result ->
                     val itemList = mutableListOf<ItemBoardModel>()
@@ -81,7 +87,7 @@ class BoardFragment : Fragment() {
         }
     }
 
-    /*
+
     fun myCheckPermission(activity: AppCompatActivity) {
         val requestPermissionLauncher = activity.registerForActivityResult(
             ActivityResultContracts.RequestPermission()
@@ -113,7 +119,7 @@ class BoardFragment : Fragment() {
             }
         }
     }
-     */
+
 
     companion object {
         /**

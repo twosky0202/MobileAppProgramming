@@ -32,7 +32,6 @@
 
     </LinearLayout>
 
-    <!--
      <ImageView
          android:id="@+id/itemImageView"
          android:layout_width="match_parent"
@@ -40,7 +39,7 @@
          android:layout_marginTop="20dp"
          android:layout_marginBottom="5dp"
          android:scaleType="fitXY" />
-    -->
+
      <TextView
          android:id="@+id/itemContentView"
          android:layout_width="match_parent"
@@ -52,7 +51,6 @@
          android:paddingLeft="10dp"
          android:textColor="#212121"
          android:textSize="14sp" />
-
 
     <View
         android:layout_width="match_parent"
