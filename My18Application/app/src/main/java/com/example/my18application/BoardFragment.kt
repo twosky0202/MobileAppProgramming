@@ -7,7 +7,7 @@ import android.os.Build
 import android.os.Bundle
 import android.os.Environment
 import android.provider.Settings
-import androidx.fragment.app.Fragment
+import android.util.Log
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
@@ -15,10 +15,10 @@ import android.widget.Toast
 import androidx.activity.result.contract.ActivityResultContracts
 import androidx.appcompat.app.AppCompatActivity
 import androidx.core.content.ContextCompat
+import androidx.fragment.app.Fragment
 import androidx.recyclerview.widget.LinearLayoutManager
 import com.example.my18application.databinding.FragmentBoardBinding
 import com.google.firebase.firestore.Query
-import com.google.firebase.firestore.ktx.toObject
 
 // TODO: Rename parameter arguments, choose names that match
 // the fragment initialization parameters, e.g. ARG_ITEM_NUMBER
@@ -34,7 +34,7 @@ class BoardFragment : Fragment() {
     // TODO: Rename and change types of parameters
     private var param1: String? = null
     private var param2: String? = null
-    lateinit var binding :FragmentBoardBinding
+    lateinit var binding : FragmentBoardBinding
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
@@ -54,24 +54,27 @@ class BoardFragment : Fragment() {
         myCheckPermission(requireActivity() as AppCompatActivity)
 
         binding.mainFab.setOnClickListener {
-            if(MyApplication.checkAuth()){
-                val intent = Intent(requireContext(), AddActivity::class.java)
-                startActivity(intent)
-            }
-            else {
-                Toast.makeText(requireContext(), "인증을 진행해 주세요", Toast.LENGTH_SHORT).show()
+            if(MyApplication.checkAuth()) {
+                startActivity(Intent(requireContext(), AddActivity::class.java))
+            }else {
+                Toast.makeText(requireContext(), "인증을 진행해 주세요",Toast.LENGTH_SHORT).show()
             }
         }
+
         return binding.root
     }
 
     override fun onStart() {
         super.onStart()
+
         if(MyApplication.checkAuth()){
+            Log.d("mobileApp", "onStart")
             MyApplication.db.collection("news")
+
                 .orderBy("date", Query.Direction.DESCENDING) // 내림차순
+
                 .get()
-                .addOnSuccessListener {result ->
+                .addOnSuccessListener { result ->
                     val itemList = mutableListOf<ItemBoardModel>()
                     for(document in result){
                         val item = document.toObject(ItemBoardModel::class.java)
@@ -81,14 +84,15 @@ class BoardFragment : Fragment() {
                     binding.boardRecyclerView.layoutManager = LinearLayoutManager(requireContext())
                     binding.boardRecyclerView.adapter = MyBoardAdapter(requireContext(), itemList)
                 }
-                .addOnFailureListener {
-                    Toast.makeText(requireContext(), "데이터 획득 실패", Toast.LENGTH_SHORT).show()
+                .addOnFailureListener{ exception ->
+                    Toast.makeText(requireContext(), "서버 데이터 획득 실패", Toast.LENGTH_SHORT).show()
                 }
         }
     }
 
-
     fun myCheckPermission(activity: AppCompatActivity) {
+        Log.d("mobileApp", "myCheckPermission")
+
         val requestPermissionLauncher = activity.registerForActivityResult(
             ActivityResultContracts.RequestPermission()
         ) {
@@ -105,6 +109,7 @@ class BoardFragment : Fragment() {
         ) {
             requestPermissionLauncher.launch(Manifest.permission.READ_EXTERNAL_STORAGE)
         }
+
         if (ContextCompat.checkSelfPermission(
                 activity, Manifest.permission.WRITE_EXTERNAL_STORAGE
             ) !== PackageManager.PERMISSION_GRANTED
@@ -119,7 +124,6 @@ class BoardFragment : Fragment() {
             }
         }
     }
-
 
     companion object {
         /**
